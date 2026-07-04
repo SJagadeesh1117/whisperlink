@@ -1,0 +1,6 @@
+vendor/
+uploads/
+whisperlink-backend
+.env
+.git
+.DS_Store

@@ -1,0 +1,63 @@
+version: '3.8'
+
+services:
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    ports:
+      - "5173:80" # Maps host port 5173 to Nginx port 80
+    depends_on:
+      - backend
+    restart: unless-stopped
+    networks:
+      - whisperlink-net
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost/"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    ports:
+      - "8080:8080" # Exposed so the client browser can hit the API directly
+    environment:
+      - PORT=8080
+      - REDIS_URL=redis://redis:6379/0
+      - ENV=production
+      - ROOM_TTL_SECS=3600
+    depends_on:
+      redis:
+        condition: service_healthy
+    restart: unless-stopped
+    networks:
+      - whisperlink-net
+    healthcheck:
+      # Alpine image provides nc (netcat) to check if port is listening
+      test: ["CMD", "nc", "-z", "localhost", "8080"]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+
+  redis:
+    image: redis:7-alpine
+    # We do NOT use persistent volumes because WhisperLink is strictly ephemeral.
+    # All data must die if the server resets, enforcing Zero-Knowledge principles.
+    command: redis-server --maxmemory 256mb --maxmemory-policy allkeys-lru
+    ports:
+      - "6379:6379"
+    restart: unless-stopped
+    networks:
+      - whisperlink-net
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+networks:
+  whisperlink-net:
+    driver: bridge
