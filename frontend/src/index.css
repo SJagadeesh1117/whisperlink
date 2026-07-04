@@ -24,11 +24,22 @@
   }
 }
 
-html, body, #root {
-  height: 100%;
-  width: 100%;
+html, body {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  overflow: hidden;
   background-color: #030712; /* gray-950 */
   color: #f3f4f6; /* gray-100 */
+}
+
+#root {
+  height: 100%;
+  width: 100%;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
 }
 
 /* Custom Scrollbar for a premium look */
