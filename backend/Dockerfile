@@ -6,12 +6,9 @@ WORKDIR /app
 # Install git for any necessary dependencies
 RUN apk add --no-cache git
 
-# Download Go modules
-COPY go.mod ./
-RUN go mod download
-
-# Copy the rest of the source code
+# Download Go modules and copy source code
 COPY . .
+RUN go mod tidy
 
 # Build an optimized, statically linked binary
 # CGO_ENABLED=0 ensures it doesn't dynamically link C libraries

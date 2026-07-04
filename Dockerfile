@@ -6,12 +6,9 @@ WORKDIR /app
 # Install git for any necessary dependencies
 RUN apk add --no-cache git
 
-# Download Go modules from the backend directory
-COPY backend/go.mod ./
-RUN go mod download
-
-# Copy the backend source code
+# Download Go modules and copy source code
 COPY backend/ ./
+RUN go mod tidy
 
 # Build an optimized, statically linked binary
 RUN CGO_ENABLED=0 GOOS=linux go build -ldflags="-w -s" -o whisperlink-backend ./cmd/server/main.go
