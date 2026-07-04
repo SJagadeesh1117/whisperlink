@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import type { AttachmentMetadata } from '../store/useStore';
 import { decryptFile, importAESKey } from '../lib/crypto';
 import { useStore } from '../store/useStore';
@@ -96,7 +96,7 @@ export function AttachmentBubble({ attachment, roomId }: Props) {
           onMouseDown={() => setIsRevealed(true)}
           onMouseUp={() => setIsRevealed(false)}
           onMouseLeave={() => setIsRevealed(false)}
-          onTouchStart={(e) => {
+          onTouchStart={() => {
             // Prevent default to stop Android from selecting text or triggering context menus
             setIsRevealed(true);
           }}
@@ -139,7 +139,7 @@ export function AttachmentBubble({ attachment, roomId }: Props) {
             setIsRevealed(false);
             if (videoRef.current) videoRef.current.pause();
           }}
-          onTouchStart={(e) => {
+          onTouchStart={() => {
             setIsRevealed(true);
             if (videoRef.current) videoRef.current.play().catch(()=>{});
           }}
