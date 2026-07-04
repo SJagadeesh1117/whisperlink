@@ -45,7 +45,7 @@ func CreatePin(redisMgr *storage.RedisManager) gin.HandlerFunc {
 		}
 
 		ctx := context.Background()
-		rClient := redisMgr.Client
+		rClient := redisMgr.GetClient()
 
 		var pin string
 		var err error
@@ -101,7 +101,7 @@ func GetPin(redisMgr *storage.RedisManager) gin.HandlerFunc {
 		}
 
 		ctx := context.Background()
-		rClient := redisMgr.Client
+		rClient := redisMgr.GetClient()
 
 		jsonData, err := rClient.Get(ctx, "pin:"+pin).Result()
 		if err != nil {
