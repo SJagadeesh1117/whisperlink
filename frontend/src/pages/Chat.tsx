@@ -80,22 +80,34 @@ export default function Chat() {
     }
   }, [isKeyReady]);
 
+  const [showExitDialog, setShowExitDialog] = useState(false);
+
   // Back button interception
   useEffect(() => {
+    // Push dummy state to trap back navigation
     window.history.pushState(null, '', window.location.href);
+    
     const handlePopState = () => {
-      const confirmLeave = window.confirm("Are you sure you want to destroy the chat and leave?");
-      if (confirmLeave) {
-        deleteChat();
-      } else {
-        window.history.pushState(null, '', window.location.href);
-      }
+      // Safari often blocks native window.confirm() in popstate.
+      // So we use a React modal instead.
+      setShowExitDialog(true);
     };
+    
     window.addEventListener('popstate', handlePopState);
     return () => {
       window.removeEventListener('popstate', handlePopState);
     };
   }, []);
+
+  const handleConfirmExit = () => {
+    deleteChat();
+  };
+
+  const handleCancelExit = () => {
+    setShowExitDialog(false);
+    // Push dummy state again so the next back button click is trapped too
+    window.history.pushState(null, '', window.location.href);
+  };
 
   // Handle kick if room deleted or not joined properly
   useEffect(() => {
@@ -203,6 +215,33 @@ export default function Chat() {
 
   return (
     <div className="flex flex-col h-[100dvh] bg-gray-950 relative overflow-hidden">
+      {/* Custom Exit Dialog Modal */}
+      {showExitDialog && (
+        <div className="absolute inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-fade-in">
+          <div className="bg-gray-900 border border-gray-700 rounded-2xl p-6 max-w-sm w-full shadow-2xl animate-scale-up">
+            <h3 className="text-lg font-bold text-gray-100 mb-2">Leave Secure Chat?</h3>
+            <p className="text-sm text-gray-400 mb-6">
+              Are you sure you want to destroy the chat and leave? This action cannot be undone and all encrypted files will be wiped instantly.
+            </p>
+            <div className="flex gap-3 justify-end">
+              <button 
+                onClick={handleCancelExit}
+                className="px-4 py-2 rounded-xl text-sm font-medium text-gray-300 bg-gray-800 hover:bg-gray-700 transition-colors"
+              >
+                Cancel
+              </button>
+              <button 
+                onClick={handleConfirmExit}
+                className="px-4 py-2 rounded-xl text-sm font-medium text-red-50 bg-red-600 hover:bg-red-500 transition-colors flex items-center gap-2"
+              >
+                <PowerOff className="w-4 h-4" />
+                Destroy
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       <header className="bg-gray-900/90 backdrop-blur-xl border-b border-gray-800/60 px-4 md:px-6 py-4 flex items-center justify-between shrink-0 shadow-sm z-20">
         <div className="flex items-center gap-3">
           <div className="w-10 h-10 rounded-xl bg-emerald-500/10 flex items-center justify-center border border-emerald-500/20 hidden sm:flex">
