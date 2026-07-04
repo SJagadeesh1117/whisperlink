@@ -125,6 +125,15 @@ export function useWebSocket() {
                 isSystem: true
               });
             }
+            
+            // If the sender wasn't an echo, bounce our key back to them to ensure they have it.
+            // This fixes race conditions where a client misses the initial broadcast.
+            if (!msg.payload.is_echo && myPublicKeyBase64) {
+              ws.current?.send(JSON.stringify({
+                type: 'KEY_EXCHANGE',
+                payload: { publicKey: myPublicKeyBase64, sender_id: sessionId, is_echo: true }
+              }));
+            }
             break;
           }
           case 'ROOM_DESTROYED':
