@@ -14,12 +14,8 @@ import (
 
 var upgrader = websocket.Upgrader{
 	CheckOrigin: func(r *http.Request) bool {
-		origin := r.Header.Get("Origin")
-		// Prevent Cross-Site WebSocket Hijacking (CSWSH)
-		if origin == "http://localhost:5173" || origin == "http://127.0.0.1:5173" {
-			return true
-		}
-		return false
+		// Allow all origins since we rely on cryptographic session tokens for authentication
+		return true
 	},
 }
 
