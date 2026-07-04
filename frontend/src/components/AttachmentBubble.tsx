@@ -19,6 +19,7 @@ export function AttachmentBubble({ attachment, roomId }: Props) {
   const { sessionKeyBase64, sessionId } = useStore();
 
   const isImage = attachment.mime.startsWith('image/');
+  const isVideo = attachment.mime.startsWith('video/');
 
   useEffect(() => {
     return () => {
@@ -87,7 +88,7 @@ export function AttachmentBubble({ attachment, roomId }: Props) {
     if (isImage) {
       return (
         <div 
-          className="mt-2 rounded-lg overflow-hidden border border-gray-700/50 relative cursor-pointer select-none"
+          className="mt-2 rounded-lg overflow-hidden border border-gray-700/50 relative cursor-pointer select-none bg-black"
           style={{ WebkitTouchCallout: 'none' }}
           onContextMenu={(e) => e.preventDefault()}
           onMouseDown={() => setIsRevealed(true)}
@@ -113,6 +114,57 @@ export function AttachmentBubble({ attachment, roomId }: Props) {
         </div>
       );
     }
+
+    if (isVideo) {
+      return (
+        <div 
+          className="mt-2 rounded-lg overflow-hidden border border-gray-700/50 relative cursor-pointer select-none bg-black"
+          style={{ WebkitTouchCallout: 'none' }}
+          onContextMenu={(e) => e.preventDefault()}
+          onMouseDown={(e) => {
+            setIsRevealed(true);
+            const video = e.currentTarget.querySelector('video');
+            if (video) video.play().catch(()=>{});
+          }}
+          onMouseUp={(e) => {
+            setIsRevealed(false);
+            const video = e.currentTarget.querySelector('video');
+            if (video) video.pause();
+          }}
+          onMouseLeave={(e) => {
+            setIsRevealed(false);
+            const video = e.currentTarget.querySelector('video');
+            if (video) video.pause();
+          }}
+          onTouchStart={(e) => {
+            setIsRevealed(true);
+            const video = e.currentTarget.querySelector('video');
+            if (video) video.play().catch(()=>{});
+          }}
+          onTouchEnd={(e) => {
+            setIsRevealed(false);
+            const video = e.currentTarget.querySelector('video');
+            if (video) video.pause();
+          }}
+        >
+          <video 
+            src={objectUrl} 
+            className={`max-w-full h-auto max-h-64 object-contain transition-all duration-300 ${isRevealed ? 'blur-0' : 'blur-xl scale-105'}`}
+            style={{ pointerEvents: 'none' }}
+            playsInline
+            loop
+          />
+          {!isRevealed && (
+            <div className="absolute inset-0 flex items-center justify-center bg-gray-950/40 z-10 pointer-events-none">
+              <p className="text-white font-bold text-sm bg-gray-900/80 px-4 py-2 rounded-full shadow-lg border border-gray-700 flex flex-col items-center">
+                <span>Hold to Play</span>
+                <span className="text-xs text-gray-400 font-normal mt-0.5">Video</span>
+              </p>
+            </div>
+          )}
+        </div>
+      );
+    }
     
     return (
       <div className="mt-2 flex items-center justify-between p-3 bg-gray-800/80 rounded-lg border border-gray-700/50">
@@ -120,9 +172,12 @@ export function AttachmentBubble({ attachment, roomId }: Props) {
           <File className="w-8 h-8 text-cyan-400" />
           <div>
             <p className="text-sm font-medium text-gray-200 truncate max-w-[150px] sm:max-w-[200px]" title={attachment.name}>{attachment.name}</p>
-            <p className="text-xs text-emerald-400">Securely stored</p>
+            <p className="text-xs text-gray-400">{formatSize(attachment.size)} • Ready</p>
           </div>
         </div>
+        <a href={objectUrl} download={attachment.name} className="p-2 bg-emerald-500/20 text-emerald-400 rounded-full hover:bg-emerald-500/30 transition-colors">
+          <Download className="w-4 h-4" />
+        </a>
       </div>
     );
   }
