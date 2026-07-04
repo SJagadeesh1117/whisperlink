@@ -25,12 +25,12 @@
 }
 
 html, body {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
+  height: 100dvh;
+  width: 100%;
+  margin: 0;
+  padding: 0;
   overflow: hidden;
+  overscroll-behavior-y: none;
   background-color: #030712; /* gray-950 */
   color: #f3f4f6; /* gray-100 */
 }
@@ -38,6 +38,7 @@ html, body {
 #root {
   height: 100%;
   width: 100%;
+  position: relative;
   overflow-y: auto;
   -webkit-overflow-scrolling: touch;
 }

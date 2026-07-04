@@ -409,6 +409,7 @@ export default function Chat() {
             />
             <button 
               type="submit"
+              onPointerDown={(e) => e.preventDefault()}
               disabled={(!inputText.trim() && !uploadFile) || connectionState !== 'connected' || !isKeyReady}
               className="absolute right-2 top-1/2 -translate-y-1/2 bg-emerald-500 hover:bg-emerald-400 text-gray-950 rounded-xl h-10 w-10 flex shrink-0 items-center justify-center transition-transform hover:scale-105 active:scale-95 shadow-md disabled:opacity-50 disabled:hover:scale-100 disabled:bg-gray-800 disabled:text-gray-500"
             >
