@@ -8,7 +8,7 @@ import (
 	"time"
 	"whisperlink-backend/internal/storage"
 
-	"github.com/gorilla/websocket"
+
 	"github.com/redis/go-redis/v9"
 )
 
@@ -129,8 +129,8 @@ func (m *Manager) ExtendTTL(ctx context.Context, roomID string) {
 	ttl := m.roomTTL
 
 	pipe := rClient.Pipeline()
-	pipe.Expire(ctx, "room:"+roomID+":meta", redis.Duration(ttl)*1000*1000*1000)
-	pipe.Expire(ctx, "room:"+roomID+":sessions", redis.Duration(ttl)*1000*1000*1000)
-	pipe.Expire(ctx, "room:"+roomID+":messages", redis.Duration(ttl)*1000*1000*1000)
+	pipe.Expire(ctx, "room:"+roomID+":meta", time.Duration(ttl)*time.Second)
+	pipe.Expire(ctx, "room:"+roomID+":sessions", time.Duration(ttl)*time.Second)
+	pipe.Expire(ctx, "room:"+roomID+":messages", time.Duration(ttl)*time.Second)
 	_, _ = pipe.Exec(ctx) 
 }
