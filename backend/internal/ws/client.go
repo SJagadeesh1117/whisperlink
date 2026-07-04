@@ -114,6 +114,9 @@ func (c *Client) readPump(manager *Manager) {
 		onlineMsg, _ := json.Marshal(WsMessage{Type: EventOnline, Payload: map[string]int{"count": int(onlineCount)}})
 		rClient.Publish(ctx, "room:"+c.room.ID+":pubsub", string(onlineMsg))
 
+		// Destroy the room completely since a user has left the chat
+		manager.DeleteRoomCompletely(ctx, c.room.ID)
+
 		if localCount == 0 {
 			c.room.cancel()
 			manager.RemoveRoom(c.room.ID)

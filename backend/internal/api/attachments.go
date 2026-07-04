@@ -74,13 +74,16 @@ func UploadAttachment(redisMgr *storage.RedisManager) gin.HandlerFunc {
 
 		ctx := context.Background()
 		rClient := redisMgr.GetClient()
-		
 		// Store encrypted file blob directly in Redis RAM (TTL 1 hour)
 		err = rClient.Set(ctx, "room:"+roomID+":attachment:"+attachmentID, fileBytes, 1*time.Hour).Err()
 		if err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to save file to Redis"})
 			return
 		}
+		
+		// Track this attachment in the room's set so it can be destroyed if the chat is destroyed
+		rClient.SAdd(ctx, "room:"+roomID+":attachments", attachmentID)
+		rClient.Expire(ctx, "room:"+roomID+":attachments", 1*time.Hour)
 		
 		// Extend TTL when user interacts
 		rClient.Expire(ctx, "room:"+roomID+":meta", 1*time.Hour)

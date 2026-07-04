@@ -75,6 +75,8 @@ export function AttachmentBubble({ attachment, roomId }: Props) {
     }
   };
 
+  const [isRevealed, setIsRevealed] = useState(false);
+
   const formatSize = (bytes: number) => {
     if (bytes < 1024) return bytes + ' B';
     if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + ' KB';
@@ -84,11 +86,30 @@ export function AttachmentBubble({ attachment, roomId }: Props) {
   if (decryptedBlob && objectUrl) {
     if (isImage) {
       return (
-        <div className="mt-2 rounded-lg overflow-hidden border border-gray-700/50">
-          <img src={objectUrl} alt={attachment.name} className="max-w-full h-auto max-h-64 object-contain" />
-          <a href={objectUrl} download={attachment.name} className="block w-full text-center py-2 bg-gray-800 hover:bg-gray-700 text-xs text-gray-300 transition-colors">
-            Download Original ({formatSize(attachment.size)})
-          </a>
+        <div 
+          className="mt-2 rounded-lg overflow-hidden border border-gray-700/50 relative cursor-pointer select-none"
+          style={{ WebkitTouchCallout: 'none' }}
+          onContextMenu={(e) => e.preventDefault()}
+          onMouseDown={() => setIsRevealed(true)}
+          onMouseUp={() => setIsRevealed(false)}
+          onMouseLeave={() => setIsRevealed(false)}
+          onTouchStart={() => setIsRevealed(true)}
+          onTouchEnd={() => setIsRevealed(false)}
+        >
+          <img 
+            src={objectUrl} 
+            alt="View Once Image" 
+            className={`max-w-full h-auto max-h-64 object-contain transition-all duration-300 ${isRevealed ? 'blur-0' : 'blur-xl scale-105'}`}
+            draggable={false}
+            style={{ pointerEvents: 'none' }}
+          />
+          {!isRevealed && (
+            <div className="absolute inset-0 flex items-center justify-center bg-gray-950/40 z-10 pointer-events-none">
+              <p className="text-white font-bold text-sm bg-gray-900/80 px-4 py-2 rounded-full shadow-lg border border-gray-700">
+                Hold to Reveal
+              </p>
+            </div>
+          )}
         </div>
       );
     }
@@ -99,12 +120,9 @@ export function AttachmentBubble({ attachment, roomId }: Props) {
           <File className="w-8 h-8 text-cyan-400" />
           <div>
             <p className="text-sm font-medium text-gray-200 truncate max-w-[150px] sm:max-w-[200px]" title={attachment.name}>{attachment.name}</p>
-            <p className="text-xs text-gray-400">{formatSize(attachment.size)} • Ready</p>
+            <p className="text-xs text-emerald-400">Securely stored</p>
           </div>
         </div>
-        <a href={objectUrl} download={attachment.name} className="p-2 bg-emerald-500/20 text-emerald-400 rounded-full hover:bg-emerald-500/30 transition-colors">
-          <Download className="w-4 h-4" />
-        </a>
       </div>
     );
   }

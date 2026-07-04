@@ -84,10 +84,17 @@ func (m *Manager) DeleteRoomCompletely(ctx context.Context, roomID string) {
 	
 	// Delete from Redis
 	rClient := m.redis.GetClient()
+	// Fetch all tracked attachments and delete their blobs
+	attachments, _ := rClient.SMembers(ctx, "room:"+roomID+":attachments").Result()
 	pipe := rClient.Pipeline()
+	for _, attID := range attachments {
+		pipe.Del(ctx, "room:"+roomID+":attachment:"+attID)
+	}
+
 	pipe.Del(ctx, "room:"+roomID+":meta")
 	pipe.Del(ctx, "room:"+roomID+":sessions")
 	pipe.Del(ctx, "room:"+roomID+":messages")
+	pipe.Del(ctx, "room:"+roomID+":attachments")
 	_, err := pipe.Exec(ctx)
 	if err != nil {
 		slog.Error("Failed to delete room from Redis", "error", err)
