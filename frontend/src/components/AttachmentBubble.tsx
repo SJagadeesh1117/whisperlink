@@ -16,7 +16,7 @@ export function AttachmentBubble({ attachment, roomId }: Props) {
   const [decryptedBlob, setDecryptedBlob] = useState<Blob | null>(null);
   const [objectUrl, setObjectUrl] = useState<string | null>(null);
   const [abortController, setAbortController] = useState<AbortController | null>(null);
-  const { sessionKeyBase64 } = useStore();
+  const { sessionKeyBase64, sessionId } = useStore();
 
   const isImage = attachment.mime.startsWith('image/');
 
@@ -27,7 +27,7 @@ export function AttachmentBubble({ attachment, roomId }: Props) {
   }, [objectUrl]);
 
   const handleDownload = async () => {
-    if (!sessionKeyBase64) return;
+    if (!sessionKeyBase64 || !sessionId) return;
     setIsDownloading(true);
     setDownloadProgress(0);
     const controller = new AbortController();
@@ -36,7 +36,7 @@ export function AttachmentBubble({ attachment, roomId }: Props) {
     try {
       const API_URL = import.meta.env.VITE_API_URL || '';
       const response = await axios.get(
-        `${API_URL}/api/room/${roomId}/attachments/${attachment.id}`,
+        `${API_URL}/api/room/${roomId}/attachments/${attachment.id}?session_id=${sessionId}`,
         {
           responseType: 'arraybuffer',
           signal: controller.signal,
