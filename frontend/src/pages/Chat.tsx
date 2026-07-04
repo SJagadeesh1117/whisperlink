@@ -83,7 +83,7 @@ export default function Chat() {
   // Back button interception
   useEffect(() => {
     window.history.pushState(null, '', window.location.href);
-    const handlePopState = (e: PopStateEvent) => {
+    const handlePopState = () => {
       const confirmLeave = window.confirm("Are you sure you want to destroy the chat and leave?");
       if (confirmLeave) {
         deleteChat();
