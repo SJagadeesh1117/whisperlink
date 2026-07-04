@@ -1,7 +1,7 @@
 # WhisperLink
 
-[![CI Pipeline](https://github.com/your-username/whisperlink/actions/workflows/ci.yml/badge.svg)](https://github.com/your-username/whisperlink/actions/workflows/ci.yml)
-[![CD Pipeline](https://github.com/your-username/whisperlink/actions/workflows/cd.yml/badge.svg)](https://github.com/your-username/whisperlink/actions/workflows/cd.yml)
+[![CI Pipeline](https://github.com/SJagadeesh1117/whisperlink/actions/workflows/ci.yml/badge.svg)](https://github.com/SJagadeesh1117/whisperlink/actions/workflows/ci.yml)
+[![CD Pipeline](https://github.com/SJagadeesh1117/whisperlink/actions/workflows/cd.yml/badge.svg)](https://github.com/SJagadeesh1117/whisperlink/actions/workflows/cd.yml)
 
 
 The most secure, ephemeral, and anonymous chat platform. No sign-ups. No footprints. 
