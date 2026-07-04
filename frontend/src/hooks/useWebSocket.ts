@@ -56,7 +56,7 @@ export function useWebSocket() {
       if (myPublicKeyBase64) {
         ws.current?.send(JSON.stringify({
           type: 'KEY_EXCHANGE',
-          payload: { publicKey: myPublicKeyBase64 }
+          payload: { publicKey: myPublicKeyBase64, sender_id: sessionId }
         }));
       }
     };
@@ -95,6 +95,11 @@ export function useWebSocket() {
             });
             break;
           case 'KEY_EXCHANGE': {
+            // Ignore our own key exchange broadcast!
+            if (msg.payload.sender_id === sessionId) {
+              break;
+            }
+            
             // We received the other party's public key!
             // If we don't have a session key yet, derive it now.
             if (!sessionCryptoKey.current) {
