@@ -84,18 +84,24 @@ export function AttachmentBubble({ attachment, roomId }: Props) {
     return (bytes / (1024 * 1024)).toFixed(1) + ' MB';
   };
 
+  const videoRef = useRef<HTMLVideoElement>(null);
+
   if (decryptedBlob && objectUrl) {
     if (isImage) {
       return (
         <div 
           className="mt-2 rounded-lg overflow-hidden border border-gray-700/50 relative cursor-pointer select-none bg-black"
-          style={{ WebkitTouchCallout: 'none' }}
+          style={{ WebkitTouchCallout: 'none', touchAction: 'none' }}
           onContextMenu={(e) => e.preventDefault()}
           onMouseDown={() => setIsRevealed(true)}
           onMouseUp={() => setIsRevealed(false)}
           onMouseLeave={() => setIsRevealed(false)}
-          onTouchStart={() => setIsRevealed(true)}
+          onTouchStart={(e) => {
+            // Prevent default to stop Android from selecting text or triggering context menus
+            setIsRevealed(true);
+          }}
           onTouchEnd={() => setIsRevealed(false)}
+          onTouchCancel={() => setIsRevealed(false)}
         >
           <img 
             src={objectUrl} 
@@ -119,35 +125,35 @@ export function AttachmentBubble({ attachment, roomId }: Props) {
       return (
         <div 
           className="mt-2 rounded-lg overflow-hidden border border-gray-700/50 relative cursor-pointer select-none bg-black"
-          style={{ WebkitTouchCallout: 'none' }}
+          style={{ WebkitTouchCallout: 'none', touchAction: 'none' }}
           onContextMenu={(e) => e.preventDefault()}
-          onMouseDown={(e) => {
+          onMouseDown={() => {
             setIsRevealed(true);
-            const video = e.currentTarget.querySelector('video');
-            if (video) video.play().catch(()=>{});
+            if (videoRef.current) videoRef.current.play().catch(()=>{});
           }}
-          onMouseUp={(e) => {
+          onMouseUp={() => {
             setIsRevealed(false);
-            const video = e.currentTarget.querySelector('video');
-            if (video) video.pause();
+            if (videoRef.current) videoRef.current.pause();
           }}
-          onMouseLeave={(e) => {
+          onMouseLeave={() => {
             setIsRevealed(false);
-            const video = e.currentTarget.querySelector('video');
-            if (video) video.pause();
+            if (videoRef.current) videoRef.current.pause();
           }}
           onTouchStart={(e) => {
             setIsRevealed(true);
-            const video = e.currentTarget.querySelector('video');
-            if (video) video.play().catch(()=>{});
+            if (videoRef.current) videoRef.current.play().catch(()=>{});
           }}
-          onTouchEnd={(e) => {
+          onTouchEnd={() => {
             setIsRevealed(false);
-            const video = e.currentTarget.querySelector('video');
-            if (video) video.pause();
+            if (videoRef.current) videoRef.current.pause();
+          }}
+          onTouchCancel={() => {
+            setIsRevealed(false);
+            if (videoRef.current) videoRef.current.pause();
           }}
         >
           <video 
+            ref={videoRef}
             src={objectUrl} 
             className={`max-w-full h-auto max-h-64 object-contain transition-all duration-300 ${isRevealed ? 'blur-0' : 'blur-xl scale-105'}`}
             style={{ pointerEvents: 'none' }}
