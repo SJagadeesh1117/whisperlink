@@ -93,15 +93,16 @@ export function AttachmentBubble({ attachment, roomId }: Props) {
           className="mt-2 rounded-lg overflow-hidden border border-gray-700/50 relative cursor-pointer select-none bg-black"
           style={{ WebkitTouchCallout: 'none', touchAction: 'none' }}
           onContextMenu={(e) => e.preventDefault()}
-          onMouseDown={() => setIsRevealed(true)}
-          onMouseUp={() => setIsRevealed(false)}
-          onMouseLeave={() => setIsRevealed(false)}
-          onTouchStart={() => {
-            // Prevent default to stop Android from selecting text or triggering context menus
+          onPointerDown={(e) => {
+            // Prevent pointer capture from stopping interactions
+            if (e.target instanceof Element) {
+               e.target.releasePointerCapture(e.pointerId);
+            }
             setIsRevealed(true);
           }}
-          onTouchEnd={() => setIsRevealed(false)}
-          onTouchCancel={() => setIsRevealed(false)}
+          onPointerUp={() => setIsRevealed(false)}
+          onPointerLeave={() => setIsRevealed(false)}
+          onPointerCancel={() => setIsRevealed(false)}
         >
           <img 
             src={objectUrl} 
@@ -127,27 +128,22 @@ export function AttachmentBubble({ attachment, roomId }: Props) {
           className="mt-2 rounded-lg overflow-hidden border border-gray-700/50 relative cursor-pointer select-none bg-black"
           style={{ WebkitTouchCallout: 'none', touchAction: 'none' }}
           onContextMenu={(e) => e.preventDefault()}
-          onMouseDown={() => {
+          onPointerDown={(e) => {
+            if (e.target instanceof Element) {
+               e.target.releasePointerCapture(e.pointerId);
+            }
             setIsRevealed(true);
             if (videoRef.current) videoRef.current.play().catch(()=>{});
           }}
-          onMouseUp={() => {
+          onPointerUp={() => {
             setIsRevealed(false);
             if (videoRef.current) videoRef.current.pause();
           }}
-          onMouseLeave={() => {
+          onPointerLeave={() => {
             setIsRevealed(false);
             if (videoRef.current) videoRef.current.pause();
           }}
-          onTouchStart={() => {
-            setIsRevealed(true);
-            if (videoRef.current) videoRef.current.play().catch(()=>{});
-          }}
-          onTouchEnd={() => {
-            setIsRevealed(false);
-            if (videoRef.current) videoRef.current.pause();
-          }}
-          onTouchCancel={() => {
+          onPointerCancel={() => {
             setIsRevealed(false);
             if (videoRef.current) videoRef.current.pause();
           }}
