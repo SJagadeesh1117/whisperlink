@@ -400,11 +400,14 @@ export default function Chat() {
           <div className="relative flex-1">
             <input 
               type="text" 
+              name="message"
+              id="message"
+              autoComplete="off"
               value={inputText}
               onChange={(e) => setInputText(e.target.value)}
               onKeyDown={handleKeyDown}
               disabled={connectionState !== 'connected' || !isKeyReady}
-              placeholder={connectionState === 'connected' ? (isKeyReady ? "Type a secure message..." : "Waiting for key exchange...") : "Connecting..."}
+              placeholder={connectionState === 'connected' ? (isKeyReady ? "Type a message..." : "Waiting for key exchange...") : "Connecting..."}
               className="w-full bg-gray-950 border border-gray-800 rounded-2xl pl-5 pr-14 py-4 text-sm text-gray-100 placeholder-gray-600 focus:outline-none focus:border-emerald-500/50 focus:ring-1 focus:ring-emerald-500/50 transition-all shadow-inner disabled:opacity-50"
             />
             <button 
