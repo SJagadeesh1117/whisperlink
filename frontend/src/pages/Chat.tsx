@@ -214,7 +214,7 @@ export default function Chat() {
     .map(([nick]) => nick);
 
   return (
-    <div className="flex flex-col h-full w-full absolute inset-0 bg-gray-950 overflow-hidden">
+    <div className="flex flex-col h-full w-full bg-gray-950 overflow-hidden relative">
       {/* Custom Exit Dialog Modal */}
       {showExitDialog && (
         <div className="absolute inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-fade-in">
