@@ -143,6 +143,7 @@ export function useWebSocket() {
             break;
             
           case 'TYPING':
+            if (msg.payload.nickname === nickname) break;
             setTyping(msg.payload.nickname, true);
             setTimeout(() => setTyping(msg.payload.nickname, false), 3000);
             break;
