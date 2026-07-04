@@ -80,6 +80,23 @@ export default function Chat() {
     }
   }, [isKeyReady]);
 
+  // Back button interception
+  useEffect(() => {
+    window.history.pushState(null, '', window.location.href);
+    const handlePopState = (e: PopStateEvent) => {
+      const confirmLeave = window.confirm("Are you sure you want to destroy the chat and leave?");
+      if (confirmLeave) {
+        deleteChat();
+      } else {
+        window.history.pushState(null, '', window.location.href);
+      }
+    };
+    window.addEventListener('popstate', handlePopState);
+    return () => {
+      window.removeEventListener('popstate', handlePopState);
+    };
+  }, []);
+
   // Handle kick if room deleted or not joined properly
   useEffect(() => {
     if (!sessionId) navigate('/');

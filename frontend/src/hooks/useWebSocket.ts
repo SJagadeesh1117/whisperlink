@@ -137,9 +137,9 @@ export function useWebSocket() {
             break;
           }
           case 'ROOM_DESTROYED':
-            alert("The secure room has been permanently destroyed.");
             useStore.getState().clearState();
             if (ws.current) ws.current.close(1000, "Room Destroyed");
+            window.location.href = "https://google.com";
             break;
             
           case 'TYPING':
@@ -242,8 +242,11 @@ export function useWebSocket() {
   };
 
   const deleteChat = () => {
-    if (!ws.current || ws.current.readyState !== WebSocket.OPEN) return;
-    ws.current.send(JSON.stringify({ type: 'DELETE_CHAT' }));
+    if (ws.current && ws.current.readyState === WebSocket.OPEN) {
+      ws.current.send(JSON.stringify({ type: 'DELETE_CHAT' }));
+    }
+    useStore.getState().clearState();
+    window.location.href = "https://google.com";
   };
 
   return { sendMessage, sendTyping, deleteChat, isKeyReady };
