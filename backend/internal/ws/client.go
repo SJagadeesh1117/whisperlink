@@ -163,7 +163,6 @@ func (c *Client) readPump(manager *Manager) {
 			rClient := manager.redis.GetClient()
 			rClient.Publish(ctx, "room:"+c.room.ID+":pubsub", string(outMsg))
 			
-			rClient := manager.redis.GetClient()
 			pipe := rClient.Pipeline()
 			pipe.RPush(ctx, "room:"+c.room.ID+":messages", string(outMsg))
 			pipe.LTrim(ctx, "room:"+c.room.ID+":messages", -200, -1) // Cap at 200 messages
