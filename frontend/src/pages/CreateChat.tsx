@@ -9,6 +9,7 @@ import QRCode from 'react-qr-code';
 export default function CreateChat() {
   const [nickname, setNickname] = useState('');
   const [inviteLink, setInviteLink] = useState('');
+  const [joinPin, setJoinPin] = useState('');
   const [copied, setCopied] = useState(false);
   const { setRoomState, setMyKeys } = useStore();
   const navigate = useNavigate();
@@ -22,6 +23,19 @@ export default function CreateChat() {
         body: JSON.stringify({ session_id: sessionId })
       });
       if (!res.ok) throw new Error('Failed to create room');
+      return res.json();
+    }
+  });
+
+  const createPinMutation = useMutation({
+    mutationFn: async (payload: { room_id: string, join_token: string, pubkey: string }) => {
+      const API_URL = import.meta.env.VITE_API_URL || '';
+      const res = await fetch(`${API_URL}/api/pin`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+      if (!res.ok) throw new Error('Failed to create pin');
       return res.json();
     }
   });
@@ -41,6 +55,13 @@ export default function CreateChat() {
       setRoomState(room_id, sessionId, nickname);
       setMyKeys(privateKeyB64, publicKeyB64);
       
+      const { pin } = await createPinMutation.mutateAsync({
+        room_id,
+        join_token,
+        pubkey: publicKeyB64
+      });
+      setJoinPin(pin);
+
       const link = `${window.location.origin}/join/${room_id}?token=${join_token}#${publicKeyB64}`;
       setInviteLink(link);
     } catch (err) {
@@ -83,8 +104,15 @@ export default function CreateChat() {
           </div>
           
           <h2 className="text-2xl font-bold mb-2 text-center text-gray-100">Room Secured</h2>
-          <p className="text-sm text-gray-400 text-center mb-6 leading-relaxed">Share this one-time link. The cryptographic anchor is embedded securely in the URL.</p>
+          <p className="text-sm text-gray-400 text-center mb-6 leading-relaxed">Share this one-time link or the 6-digit PIN below. The cryptographic anchor is embedded securely.</p>
           
+          <div className="flex justify-center mb-6">
+            <div className="bg-gray-950 border border-emerald-500/30 rounded-2xl p-4 flex flex-col items-center justify-center shadow-[0_0_15px_rgba(16,185,129,0.1)]">
+              <span className="text-xs text-emerald-400 font-bold tracking-widest uppercase mb-1">Join PIN</span>
+              <span className="text-4xl font-black text-white tracking-[0.2em]">{joinPin.substring(0, 3)} {joinPin.substring(3)}</span>
+            </div>
+          </div>
+
           <div className="flex justify-center mb-6">
             <div className="bg-white p-3 rounded-2xl shadow-lg border-4 border-gray-950">
               <QRCode value={inviteLink} size={150} fgColor="#030712" />

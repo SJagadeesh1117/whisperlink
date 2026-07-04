@@ -1,7 +1,30 @@
-import { Link } from 'react-router-dom';
+import { useState } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
+import { useMutation } from '@tanstack/react-query';
 import { Shield, Lock, Zap, Ghost } from 'lucide-react';
 
 export default function Home() {
+  const [joinPin, setJoinPin] = useState('');
+  const navigate = useNavigate();
+
+  const joinPinMutation = useMutation({
+    mutationFn: async (pin: string) => {
+      const API_URL = import.meta.env.VITE_API_URL || '';
+      const res = await fetch(`${API_URL}/api/pin/${pin}`);
+      if (!res.ok) throw new Error('Failed to fetch pin');
+      return res.json();
+    },
+    onSuccess: (data) => {
+      navigate(`/join/${data.room_id}?token=${data.join_token}#${data.pubkey}`);
+    }
+  });
+
+  const handleJoin = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (joinPin.length === 6) {
+      joinPinMutation.mutate(joinPin);
+    }
+  };
   return (
     <div className="flex flex-col min-h-screen bg-gray-950 text-gray-100 overflow-hidden relative">
       {/* Background Orbs */}
@@ -27,16 +50,35 @@ export default function Home() {
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-6">
             <Link 
               to="/create" 
-              className="w-full sm:w-auto px-8 py-4 bg-emerald-500 hover:bg-emerald-400 text-gray-950 font-bold rounded-xl transition-all hover:scale-[1.03] active:scale-95 shadow-[0_0_20px_rgba(16,185,129,0.3)] text-lg"
+              className="w-full sm:w-auto px-8 py-4 bg-emerald-500 hover:bg-emerald-400 text-gray-950 font-bold rounded-xl transition-all hover:scale-[1.03] active:scale-95 shadow-[0_0_20px_rgba(16,185,129,0.3)] text-lg text-center"
             >
               Start Secure Chat
             </Link>
-            <a 
-              href="#how-it-works"
-              className="w-full sm:w-auto px-8 py-4 bg-gray-900 hover:bg-gray-800 border border-gray-800 text-gray-300 font-semibold rounded-xl transition-all hover:scale-[1.03] active:scale-95 text-lg"
-            >
-              How it works
-            </a>
+          </div>
+
+          <div className="pt-8 max-w-sm mx-auto">
+            <form onSubmit={handleJoin} className="flex gap-2">
+              <input 
+                type="text" 
+                value={joinPin}
+                onChange={(e) => setJoinPin(e.target.value.replace(/\D/g, '').slice(0, 6))}
+                placeholder="Enter 6-Digit PIN"
+                className="flex-1 bg-gray-900 border border-gray-800 rounded-xl px-4 py-3 text-white placeholder-gray-600 focus:outline-none focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500 tracking-widest text-center text-lg shadow-inner" 
+                maxLength={6}
+              />
+              <button 
+                type="submit"
+                disabled={joinPin.length !== 6 || joinPinMutation.isPending}
+                className="px-6 bg-cyan-500 hover:bg-cyan-400 disabled:opacity-50 disabled:hover:bg-cyan-500 text-gray-950 font-bold rounded-xl transition-all shadow-[0_0_15px_rgba(6,182,212,0.2)] flex items-center justify-center"
+              >
+                Join
+              </button>
+            </form>
+            {joinPinMutation.isError && (
+              <p className="text-red-400 text-sm text-center mt-3 bg-red-400/10 py-2 rounded-lg border border-red-400/20">
+                Invalid or expired PIN.
+              </p>
+            )}
           </div>
         </div>
 

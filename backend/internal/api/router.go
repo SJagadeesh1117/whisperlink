@@ -20,6 +20,8 @@ func SetupRouter(redisMgr *storage.RedisManager, wsManager *ws.Manager, roomTTLS
 		api.POST("/room/join", JoinRoom(redisMgr, roomTTLSecs))
 		api.POST("/room/:roomId/attachments", UploadAttachment(redisMgr))
 		api.GET("/room/:roomId/attachments/:attachmentId", DownloadAttachment(redisMgr))
+		api.POST("/pin", CreatePin(redisMgr))
+		api.GET("/pin/:pin", GetPin(redisMgr))
 	}
 
 	// WebSocket Routes
